@@ -13,7 +13,7 @@ def generate_file_url(date):
     url = 'http://data.githubarchive.org/{}.json.gz'.format(date_string)
     return url
 
-def get_file(url):
+def wget_file(url):
     """
     Downloads file at provided url to local /files/ directory
     """
@@ -36,16 +36,16 @@ def generate_date_range(start, end):
             date_range.append('{}-{}'.format(str(result), hour))
     return date_range
 
-def ingest_date_range_files(date_range):
+def get_date_range_files(date_range):
     """
     For a given list of date strings, loops over them and grabs the file from
     GitHub Archive
     """
     for date in date_range:
         file_url = generate_file_url(date)
-        get_file(file_url)
+        wget_file(file_url)
 
-def ingest_files(startdate = None, enddate = None):
+def get_files(startdate = None, enddate = None):
     """
     Larger wrapper function for grabbing all necessary data
     """
@@ -56,4 +56,4 @@ def ingest_files(startdate = None, enddate = None):
 
     date_range = generate_date_range(startdate, enddate)
     print(date_range)
-    ingest_date_range_files(date_range)
+    get_date_range_files(date_range)

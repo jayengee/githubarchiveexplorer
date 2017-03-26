@@ -190,6 +190,7 @@ def get_top_10_monthlies():
     """
     stats = get_stats()
     top_10_monthlies = stats.where(stats.year_month_rank <= 10)
+    top_10_monthlies.registerTempTable('top_10_monthlies')
     return top_10_monthlies
 
 def track_top_10s():
@@ -200,6 +201,14 @@ def track_top_10s():
     stats = get_stats()
     top_10s = get_top_10_monthlies()
     top_10_ids = [int(i.repo_id) for i in top_10s.select(top_10s.repo_id).distinct().collect()]
-    print(top_10_ids)
-    tracked_top_10s = stats.where(stats.repo_id.isin(top_10_ids))
+    top_10_stats = stats.where(stats.repo_id.isin(top_10_ids))
+    top_10_stats.registerTempTable('top_10_stats')
+    tracked_top_10s = spark.sql("""
+        SELECT
+            repo_id,
+            repo_name,
+            MAX(n_events) AS peak_n_events,
+        FROM top_10_stats
+        GROUP BY repo_id
+    """)
     return tracked_top_10s
