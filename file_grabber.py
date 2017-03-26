@@ -2,15 +2,28 @@ import gzip
 from datetime import date, datetime, timedelta
 import wget
 
+
 def generate_file_url(date):
+    """
+    Takes a datehour string and generates url for the matching GitHub Archive
+    gzip file
+    """
+
     date_string = date
     url = 'http://data.githubarchive.org/{}.json.gz'.format(date_string)
     return url
 
 def get_file(url):
+    """
+    Downloads file at provided url to local /files/ directory
+    """
     wget.download(url, './files/')
 
 def generate_date_range(start, end):
+    """
+    For a given pair of start and end date objects, returns list of strings
+    matching the year, month, day, hour format used by GitHub Archive
+    """
     def perdelta(start, end, delta):
         curr = start
         while curr < end:
@@ -24,10 +37,23 @@ def generate_date_range(start, end):
     return date_range
 
 def ingest_date_range_files(date_range):
+    """
+    For a given list of date strings, loops over them and grabs the file from
+    GitHub Archive
+    """
     for date in date_range:
         file_url = generate_file_url(date)
         get_file(file_url)
 
-date_range = generate_date_range(date(2014, 11, 1), date(2014, 11, 5))
-print(date_range)
-ingest_date_range_files(date_range)
+def ingest_files(startdate = None, enddate = None):
+    """
+    Larger wrapper function for grabbing all necessary data
+    """
+    if startdate is None:
+        startdate = date(2011, 1, 1)
+    if enddate is None
+        enddate = date(2017, 1, 1)
+
+    date_range = generate_date_range(startdate, enddate)
+    print(date_range)
+    ingest_date_range_files(date_range)

@@ -3,3 +3,4 @@ metastore_db
 spark-warehouse
 *.pyc
 files/*.json.gz
+*.log
