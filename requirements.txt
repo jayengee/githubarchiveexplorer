@@ -1,0 +1,6 @@
+boto3
+findspark
+gzip
+petl
+py4j
+wget
