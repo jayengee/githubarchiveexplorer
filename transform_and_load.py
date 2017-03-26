@@ -184,7 +184,7 @@ def get_stats():
 
     return pre_2015_stats.union(post_2015_stats)
 
-def get_top_10_monthlies():
+def get_monthly_top_10s():
     """
     Returns top 10 most active ranked repos by month, based on event counts
     """
@@ -193,9 +193,9 @@ def get_top_10_monthlies():
     top_10_monthlies.registerTempTable('top_10_monthlies')
     return top_10_monthlies
 
-def track_top_10s():
+def get_top_10s_records():
     """
-    Returns all monthly sums for any repo ever ranked in the top 10 most active
+    Returns max monthly event counts for any repo ever ranked in the top 10 most active
     repos
     """
     stats = get_stats()
@@ -203,7 +203,7 @@ def track_top_10s():
     top_10_ids = [int(i.repo_id) for i in top_10s.select(top_10s.repo_id).distinct().collect()]
     top_10_stats = stats.where(stats.repo_id.isin(top_10_ids))
     top_10_stats.registerTempTable('top_10_stats')
-    tracked_top_10s = spark.sql("""
+    top_10s_records = spark.sql("""
         SELECT
             repo_id,
             repo_name,
@@ -211,4 +211,13 @@ def track_top_10s():
         FROM top_10_stats
         GROUP BY repo_id
     """)
-    return tracked_top_10s
+    return top_10s_records
+
+def top_10_monthly_all_time():
+    """
+    Returns the top 10 repos, based on the highest monthly event counts for that repo, all time
+    """
+    top_10_stats = get_top_10s_records()
+    top_10_monthly_all_time = top_10_stats.orderBy(top_10_stats.peak_n_events.desc()).limit(10)
+
+    return top_10_monthly_all_time
