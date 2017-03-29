@@ -1,4 +1,4 @@
-from config import sparkSession
+from utils import sparkSession
 import json
 
 def parse_pre_2015_events():

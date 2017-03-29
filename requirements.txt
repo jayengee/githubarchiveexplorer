@@ -1,6 +1,5 @@
-boto
 findspark
-gcs-oauth2-boto-plugin
+google-cloud
 petl
 py4j
 wget

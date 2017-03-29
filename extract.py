@@ -1,15 +1,17 @@
 from datetime import date, datetime, timedelta
+import os
+import shutil
+from utils import dataBucket
 import wget
 
-
-def generate_file_url(date):
+def generate_file_url(filename):
     """
     Takes a datehour string and generates url for the matching GitHub Archive
     gzip file
     """
 
     date_string = date
-    url = 'http://data.githubarchive.org/{}.json.gz'.format(date_string)
+    url = 'http://data.githubarchive.org/{}'.format(filename)
     return url
 
 def wget_file(url):
@@ -40,9 +42,20 @@ def get_date_range_files(date_range):
     For a given list of date strings, loops over them and grabs the file from
     GitHub Archive
     """
+    bucket = dataBucket()
+    file_count = 0
+
     for date in date_range:
-        file_url = generate_file_url(date)
+        filename = '{}.json.gz'.format(date)
+        file_url = generate_file_url(filename)
         wget_file(file_url)
+        blob = bucket.blob(filename)
+        blob.upload_from_filename('./files/{}'.format(filename))
+        file_count += 1
+
+        if file_count >= (24):
+            shutil.rmtree('./files/')
+            os.makedirs('./files/')
 
 def get_files(startdate = None, enddate = None):
     """
