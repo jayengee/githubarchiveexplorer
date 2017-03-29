@@ -51,7 +51,7 @@ def get_files(startdate = None, enddate = None):
     """
     if startdate is None:
         startdate = date(2011, 1, 1)
-    if enddate is None
+    if enddate is None:
         enddate = date(2017, 1, 1)
 
     date_range = generate_date_range(startdate, enddate)
