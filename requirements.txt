@@ -1,4 +1,6 @@
+boto
 findspark
+gcs-oauth2-boto-plugin
 petl
 py4j
 wget
