@@ -1,6 +1,6 @@
-import findspark
-findspark.init()
-import pyspark
+#import findspark
+#findspark.init()
+#import pyspark
 
 from google.cloud import storage
 
