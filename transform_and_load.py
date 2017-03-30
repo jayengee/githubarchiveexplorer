@@ -15,7 +15,7 @@ def parse_pre_2015_events():
         schema), then returns the resuting RDD
         """
         spark = spark_session()
-        years = ['2011', '2012', '2013', '2015']
+        years = ['2011', '2012', '2013', '2014']
         data = spark.read.json('./files/{}-*'.format(years[0]))
         for year_index in range(1, len(years)):
             data = data.union(spark.read.json('./files/{}-*'.format(year)))
