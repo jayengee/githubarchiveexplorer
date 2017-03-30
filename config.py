@@ -9,4 +9,8 @@ DATA_BACKEND = 'datastore'
 
 # Google Cloud Project ID. This can be found on the 'Overview' page at
 # https://console.developers.google.com
-PROJECT_ID = 'your-project-id'
+APP_NAME = 'githubArchiveExplorer'
+PROJECT_ID = 'blendgithubarchive'
+CLUSTER_NAME = 'spark-cluster'
+BUCKET_NAME = 'githubarchivedata'
+SPARK_URL = 'spark://10.138.0.3:8088'

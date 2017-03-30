@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 import os
 import shutil
 import sys
-from utils import dataBucket
+from utils import storage_client
 import wget
 
 def generate_file_url(filename):
@@ -43,7 +43,7 @@ def get_date_range_files(date_range):
     For a given list of date strings, loops over them and grabs the file from
     GitHub Archive
     """
-    bucket = dataBucket()
+    bucket = storage_client()
     file_count = 0
 
     try:
@@ -55,9 +55,9 @@ def get_date_range_files(date_range):
             blob.upload_from_filename('./files/{}'.format(filename))
             file_count += 1
 
-            if file_count >= (24):
-                shutil.rmtree('./files/')
-                os.makedirs('./files/')
+            # if file_count >= (24):
+            #     shutil.rmtree('./files/')
+            #     os.makedirs('./files/')
     except:
         print('Unexpected error: {}'.format(sys.exc_info()[0]))
         print('   Failed on file: {}'.format(filename))

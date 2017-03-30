@@ -1,4 +1,4 @@
-from utils import sparkSession
+from utils import spark_session
 import json
 
 def parse_pre_2015_events():
@@ -14,9 +14,8 @@ def parse_pre_2015_events():
         repository language (since this was available at this point in the
         schema), then returns the resuting RDD
         """
-        spark = sparkSession()
-        #years = ['2011', '2012', '2013', '2014']
-        years = ['2014']
+        spark = spark_session()
+        years = ['2011', '2012', '2013', '2015']
         data = spark.read.json('./files/{}-*'.format(years[0]))
         for year_index in range(1, len(years)):
             data = data.union(spark.read.json('./files/{}-*'.format(year)))
@@ -29,7 +28,7 @@ def parse_pre_2015_events():
         Reads from larger data RDD and returns subset of events that match the
         criteria for appropriate CreateEvents (we filter out tag creations)
         """
-        spark = sparkSession()
+        spark = spark_session()
         creates = data.filter(data.type == 'CreateEvent') #TODO date is busted
         creates = creates.filter((creates.payload.ref_type == 'branch') |
             (creates.payload.ref_type == 'repository')
@@ -83,7 +82,7 @@ def calc_pre_2015_stats(events):
     """
     Determine n_events and n_actors for 10 repos with the most events each month
     """
-    spark = sparkSession()
+    spark = spark_session()
     stats = spark.sql("""
         SELECT
             year_month,
@@ -116,7 +115,7 @@ def parse_post_2015_events():
         Reads all json.gz files from 2015 to 2016 and unions them, then returns
         the resuting RDD
         """
-        spark = sparkSession()
+        spark = spark_session()
         #years = ['2015', '2016', '2017']
         years = ['2016']
         data = spark.read.json('./files/{}-*'.format(years[0]))
@@ -148,7 +147,7 @@ def calc_post_2015_stats(events):
     """
     Determine n_events and n_actors for 10 repos with the most events each month
     """
-    spark = sparkSession()
+    spark = spark_session()
     stats = spark.sql("""
         SELECT
             year_month,

@@ -1,4 +1,5 @@
 findspark
+google-api-python-client
 google-cloud
 petl
 py4j
