@@ -5,7 +5,6 @@ import pyspark
 def spark_session():
     return pyspark.sql.SparkSession \
         .builder \
-        .master(config.SPARK_URL) \
         .appName(config.APP_NAME) \
         .enableHiveSupport() \
         .getOrCreate()
