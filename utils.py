@@ -1,5 +1,5 @@
 import findspark
-findspark.init()
+findspark.init('/home/ng.j.jason/spark-2.1.0-bin-hadoop2.7/')
 import pyspark
 import config
 
