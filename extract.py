@@ -55,9 +55,9 @@ def get_date_range_files(date_range):
             blob.upload_from_filename('./files/{}'.format(filename))
             file_count += 1
 
-            # if file_count >= (24):
-            #     shutil.rmtree('./files/')
-            #     os.makedirs('./files/')
+            if file_count >= (24):
+                shutil.rmtree('./files/')
+                os.makedirs('./files/')
     except:
         print('Unexpected error: {}'.format(sys.exc_info()[0]))
         print('   Failed on file: {}'.format(filename))
