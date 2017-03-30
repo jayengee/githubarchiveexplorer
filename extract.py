@@ -1,9 +1,15 @@
 from datetime import date, datetime, timedelta
+import config
+from google.cloud import storage
 import os
 import shutil
 import sys
-from utils import storage_client
 import wget
+
+def storage_client():
+    client = storage.Client()
+    bucket = client.get_bucket(config.BUCKET_NAME)
+    return bucket
 
 def generate_file_url(filename):
     """
