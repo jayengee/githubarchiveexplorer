@@ -25,30 +25,10 @@ def parse_pre_2015_events():
         spark = spark_session()
         years = ['2011', '2012', '2013', '2014']
         data = spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, years[0]))
-        for year_index in range(1, len(years)):
+        for year in years:
             data = data.union(spark.read.json('./files/{}-*'.format(year)))
 
-        data = data.filter(data.repository.language == 'JavaScript')
         return data
-
-    def parse_creates():
-        """
-        Reads from larger data RDD and returns subset of events that match the
-        criteria for appropriate CreateEvents (we filter out tag creations)
-        """
-        spark = spark_session()
-        creates = data.filter(data.type == 'CreateEvent') #TODO date is busted
-        creates = creates.filter((creates.payload.ref_type == 'branch') |
-            (creates.payload.ref_type == 'repository')
-        )
-        return creates
-
-    def parse_forks():
-        """
-        Reads from larger data RDD and returns subset of events that are forks
-        """
-        forks = data.filter(data.type == 'ForkEvent')
-        return forks
 
     def parse_pull_requests():
         """
@@ -57,34 +37,12 @@ def parse_pre_2015_events():
         open and successful merge events)
         """
         pull_requests = data.filter(data.type == 'PullRequestEvent')
-        pull_requests = pull_requests.filter((pull_requests.payload.action == 'opened') |
-            ((pull_requests.payload.action == 'closed') & (pull_requests.payload.pull_request.merged == True))
-        )
+        pull_requests = pull_requests.filter(pull_requests.payload.pull_request.base.repo.language == 'JavaScript')
         return pull_requests
-
-    def parse_pushes():
-        """
-        Reads from larger data RDD and returns subset of events that are pushes.
-        Note that each push can contain numerous commits
-        """
-        pushes = data.filter(data.type == 'PushEvent')
-        return pushes
 
     data = read_files()
 
-    event_types = [
-        parse_creates(),
-        parse_forks(),
-        parse_pull_requests(),
-        parse_pushes()
-    ]
-
-    events = event_types[0]
-
-    for event_type_index in range(1, len(event_types)):
-        events = events.union(event_types[event_type_index])
-
-    return events
+    return parse_pull_requests()
 
 def calc_pre_2015_stats(events):
     """
@@ -102,8 +60,8 @@ def calc_pre_2015_stats(events):
         FROM (
             SELECT
                 SUBSTRING(created_at, 1, 7) as year_month,
-                repository.id as repo_id,
-                repository.name as repo_name,
+                repo.id as repo_id,
+                repo.name as repo_name,
                 COUNT(*) as n_events,
                 COUNT(DISTINCT actor) as n_actors
             FROM pre_2015_events
@@ -124,10 +82,9 @@ def parse_post_2015_events():
         the resuting RDD
         """
         spark = spark_session()
-        #years = ['2015', '2016', '2017']
-        years = ['2016']
-        data = spark.read.json('./files/{}-*'.format(years[0]))
-        for year_index in range(1, len(years)):
+        years = ['2015', '2016']
+        data = spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, years[0]))
+        for year in years:
             data = data.union(spark.read.json('./files/{}-*'.format(year)))
 
         return data
@@ -145,11 +102,8 @@ def parse_post_2015_events():
         return pull_requests
 
     data = read_files()
-    pull_requests = parse_pull_requests()
 
-    events = pull_requests
-
-    return events
+    return parse_pull_requests()
 
 def calc_post_2015_stats(events):
     """
@@ -170,7 +124,7 @@ def calc_post_2015_stats(events):
                 repo.id as repo_id,
                 repo.name as repo_name,
                 COUNT(*) as n_events,
-                COUNT(DISTINCT actor.id) as n_actors
+                COUNT(DISTINCT actor) as n_actors
             FROM post_2015_events
             GROUP BY SUBSTRING(created_at, 1, 7), repo
         ) AS createStats
