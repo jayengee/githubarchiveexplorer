@@ -26,7 +26,7 @@ def parse_pre_2015_events():
         years = ['2011', '2012', '2013', '2014']
         data = spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, years[0]))
         for year in years:
-            data = data.union(spark.read.json('./files/{}-*'.format(year)))
+            data = data.union(spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, year)))
 
         return data
 
@@ -85,7 +85,7 @@ def parse_post_2015_events():
         years = ['2015', '2016']
         data = spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, years[0]))
         for year in years:
-            data = data.union(spark.read.json('./files/{}-*'.format(year)))
+            data = data.union(spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, year)))
 
         return data
 
