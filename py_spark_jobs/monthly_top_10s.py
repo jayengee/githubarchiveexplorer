@@ -9,32 +9,31 @@ def spark_session():
         .enableHiveSupport() \
         .getOrCreate()
 
-def parse_pre_2015_events():
+def parse_events():
     """
-    Reads all json.gz files from before 2015 into one RDD, subsets into
+    Reads all json.gz files into one RDD, subsets into
     smaller RDDs based on rules for different types of events, and ultimately
     returns a RDD of the union of them
     """
 
     def read_files():
         """
-        Reads all json.gz files from 2011 to 2014 and unions them. Filters by
+        Reads all json.gz files from 2011 to 2016 and unions them. Filters by
         repository language (since this was available at this point in the
         schema), then returns the resuting RDD
         """
         spark = spark_session()
-        years = ['2011', '2012', '2013', '2014']
+        years = ['2011', '2012', '2013', '2014', '2015', '2016']
         data = spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, years[0]))
-        for year in years:
-            data = data.union(spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, year)))
+        for year_index in range(1, len(years)):
+            data = data.union(spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, years[year_index])))
 
         return data
 
     def parse_pull_requests():
         """
         Reads from larger data RDD and returns subset of events that match the
-        criteria for appropraite PullRequestEvents (we are only capturing PR
-        open and successful merge events)
+        criteria for appropraite PullRequestEvents
         """
         pull_requests = data.filter(data.type == 'PullRequestEvent')
         pull_requests = pull_requests.filter(pull_requests.payload.pull_request.base.repo.language == 'JavaScript')
@@ -44,9 +43,9 @@ def parse_pre_2015_events():
 
     return parse_pull_requests()
 
-def calc_pre_2015_stats(events):
+def calc_stats():
     """
-    Determine n_events and n_actors for 10 repos with the most events each month
+    Determine n_events and n_actors
     """
     spark = spark_session()
     stats = spark.sql("""
@@ -64,69 +63,8 @@ def calc_pre_2015_stats(events):
                 repo.name as repo_name,
                 COUNT(*) as n_events,
                 COUNT(DISTINCT actor) as n_actors
-            FROM pre_2015_events
+            FROM events
             GROUP BY SUBSTRING(created_at, 1, 7), repository
-        ) AS createStats
-    """)
-    return stats
-
-def parse_post_2015_events():
-    """
-    Reads all json.gz files from from 2015 onwards into one RDD, subsets into
-    smaller RDDs based on rules for different types of events, and ultimately
-    returns a RDD of the union of them
-    """
-    def read_files():
-        """
-        Reads all json.gz files from 2015 to 2016 and unions them, then returns
-        the resuting RDD
-        """
-        spark = spark_session()
-        years = ['2015', '2016']
-        data = spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, years[0]))
-        for year in years:
-            data = data.union(spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, year)))
-
-        return data
-
-    def parse_pull_requests():
-        """
-        Reads from larger data RDD and returns subset of events that match the
-        criteria for appropriate PullRequestEvents (we are only capturing PR
-        open and successful merge events). Also, due to the change in schema,
-        only pull request events contain the repo language, and thus will be
-        the only source of events for 2015 onwards for this project
-        """
-        pull_requests = data.filter(data.type == 'PullRequestEvent')
-        pull_requests = pull_requests.filter(pull_requests.payload.pull_request.base.repo.language == 'JavaScript')
-        return pull_requests
-
-    data = read_files()
-
-    return parse_pull_requests()
-
-def calc_post_2015_stats(events):
-    """
-    Determine n_events and n_actors for 10 repos with the most events each month
-    """
-    spark = spark_session()
-    stats = spark.sql("""
-        SELECT
-            year_month,
-            RANK() OVER (PARTITION BY year_month ORDER BY n_events DESC) AS year_month_rank,
-            repo_id,
-            repo_name,
-            n_events,
-            n_actors
-        FROM (
-            SELECT
-                SUBSTRING(created_at, 1, 7) as year_month,
-                repo.id as repo_id,
-                repo.name as repo_name,
-                COUNT(*) as n_events,
-                COUNT(DISTINCT actor) as n_actors
-            FROM post_2015_events
-            GROUP BY SUBSTRING(created_at, 1, 7), repo
         ) AS createStats
     """)
     return stats
@@ -135,15 +73,11 @@ def get_stats():
     """
     Wrapper function to construct stat RDDs
     """
-    pre_2015_events = parse_pre_2015_events()
-    pre_2015_events.registerTempTable('pre_2015_events')
-    pre_2015_stats = calc_pre_2015_stats(pre_2015_events)
+    events = parse_events()
+    events.registerTempTable('events')
+    stats = calc_stats()
 
-    post_2015_events = parse_post_2015_events()
-    post_2015_events.registerTempTable('post_2015_events')
-    post_2015_stats = calc_post_2015_stats(post_2015_events)
-
-    return pre_2015_stats.union(post_2015_stats)
+    return stats
 
 def get_monthly_top_10s():
     """
