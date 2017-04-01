@@ -65,7 +65,7 @@ def calc_stats():
                 COUNT(*) as n_events,
                 COUNT(DISTINCT actor) as n_actors
             FROM events
-            GROUP BY SUBSTRING(created_at, 1, 7), repo.id
+            GROUP BY SUBSTRING(created_at, 1, 7), repo
         ) AS createStats
     """)
     return stats
@@ -79,15 +79,3 @@ def get_stats():
     stats = calc_stats()
 
     return stats
-
-def get_monthly_top_10s():
-    """
-    Returns top 10 most active ranked repos by month, based on event counts
-    """
-    stats = get_stats()
-    print(stats.first())
-    top_10_monthlies = stats.where(stats.year_month_rank <= 10)
-    top_10_monthlies.registerTempTable('top_10_monthlies')
-    return top_10_monthlies
-
-get_monthly_top_10s()

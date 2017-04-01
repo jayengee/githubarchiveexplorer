@@ -1,3 +1,4 @@
+from monthly_stats import get as get_monthly_stats
 from monthly_top_10s import get as get_monthly_top_10s
 
 def get():
@@ -5,6 +6,7 @@ def get():
     Returns max monthly event counts for any repo ever ranked in the top 10 most active
     repos
     """
+    stats = get_monthly_stats()
     top_10s = get_monthly_top_10s()
     top_10_ids = [int(i.repo_id) for i in top_10s.select(top_10s.repo_id).distinct().collect()]
     top_10_stats = stats.where(stats.repo_id.isin(top_10_ids))
@@ -19,4 +21,4 @@ def get():
     """)
     return top_10s_records
 
-get().collect()
+print(get().collect())

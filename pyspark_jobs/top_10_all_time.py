@@ -9,4 +9,4 @@ def get():
 
     return top_10_monthly_all_time
 
-get().collect()
+print(get().collect())
