@@ -70,7 +70,7 @@ def calc_stats():
     """)
     return stats
 
-def get_stats():
+def get():
     """
     Wrapper function to construct stat RDDs
     """
