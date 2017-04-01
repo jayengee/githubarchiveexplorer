@@ -23,7 +23,8 @@ def parse_events():
         schema), then returns the resuting RDD
         """
         spark = spark_session()
-        years = ['2011', '2012', '2013', '2014', '2015', '2016']
+        #years = ['2011', '2012', '2013', '2014', '2015', '2016']
+        years = ['2015', '2016']
         data = spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, years[0]))
         for year_index in range(1, len(years)):
             data = data.union(spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, years[year_index])))
@@ -64,7 +65,7 @@ def calc_stats():
                 COUNT(*) as n_events,
                 COUNT(DISTINCT actor) as n_actors
             FROM events
-            GROUP BY SUBSTRING(created_at, 1, 7), repository
+            GROUP BY SUBSTRING(created_at, 1, 7), repo.id
         ) AS createStats
     """)
     return stats
@@ -84,6 +85,7 @@ def get_monthly_top_10s():
     Returns top 10 most active ranked repos by month, based on event counts
     """
     stats = get_stats()
+    print(stats.first())
     top_10_monthlies = stats.where(stats.year_month_rank <= 10)
     top_10_monthlies.registerTempTable('top_10_monthlies')
     return top_10_monthlies

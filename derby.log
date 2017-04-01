@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Sat Mar 25 21:52:18 PDT 2017:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-015b-08f5-31ba-000010730ff8 
-on database directory /Users/juice/interview_materials/interview_stuff/Blend/githubArchiveExplorer/metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@572d6335 
+Mon Mar 27 17:50:23 PDT 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-015b-1264-6c8d-00000ca9aa98 
+on database directory /Users/juice/interview_materials/interview_stuff/Blend/githubArchiveExplorer/metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@57e0ff73 
 Loaded from file:/usr/local/Cellar/apache-spark/2.1.0/libexec/jars/derby-10.12.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_121-b13
