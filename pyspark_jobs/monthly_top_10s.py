@@ -10,4 +10,5 @@ def get():
     top_10_monthlies.registerTempTable('top_10_monthlies')
     return top_10_monthlies
 
-print(get().collect())
+print('---Grabbing monthly 10 repos')
+get().collect()

@@ -9,4 +9,5 @@ def get():
 
     return top_10_monthly_all_time
 
-print(get().collect())
+print('---Grabbing top 10 repos all time')
+get().collect()

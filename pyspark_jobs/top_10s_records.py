@@ -21,4 +21,5 @@ def get():
     """)
     return top_10s_records
 
-print(get().collect())
+print('---Grabbing peak engagement for all top 10 repos')
+get().collect()
