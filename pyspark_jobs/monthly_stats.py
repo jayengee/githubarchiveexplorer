@@ -1,5 +1,4 @@
 import config
-from datetime import date, timedelta
 import json
 import pyspark
 
@@ -23,41 +22,12 @@ def parse_events():
         repository language (since this was available at this point in the
         schema), then returns the resuting RDD
         """
-
-        def generate_date_range(start, end):
-            """
-            For a given pair of start and end date objects, returns list of strings
-            matching the year, month, day, hour format used by GitHub Archive
-            """
-            def perdelta(start, end, delta):
-                curr = start
-                while curr < end:
-                    yield curr
-                    curr += delta
-            date_range = []
-
-            for result in perdelta(start, end, timedelta(days=1)):
-                for hour in range(24):
-                    date_range.append('{}-{}'.format(str(result), hour))
-            return date_range
-
-        def try_load(path):
-            """
-            Tries to load .gz file, and returns empty rdd if error comes up (e.g. incorrect header check)
-            """
-            rdd = spark.read.json(path)
-            try:
-                rdd.first()
-                return rdd
-            except:
-                return spark.emptyRDD()
-
         spark = spark_session()
-        date_times = generate_date_range(date(2015,1,1), date(2016,12,31))
-
-        data = try_load('{}{}.json.gz'.format(config.BUCKET_LOCATION, date_times[0]))
-        for date_time in date_times:
-            data = data.union(try_load('{}{}.json.gz'.format(config.BUCKET_LOCATION, date_time)))
+        #years = ['2011', '2012', '2013', '2014', '2015', '2016']
+        years = ['2015', '2016']
+        data = spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, years[0]))
+        for year_index in range(1, len(years)):
+            data = data.union(spark.read.json('{}{}-*'.format(config.BUCKET_LOCATION, years[year_index])))
 
         return data
 
