@@ -50,7 +50,6 @@ def parse_events():
                 rdd.first()
                 return rdd
             except:
-                print('file_error: {}'.format(path))
                 return spark.emptyRDD()
 
         spark = spark_session()
