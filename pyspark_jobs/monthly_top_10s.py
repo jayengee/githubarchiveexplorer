@@ -1,3 +1,4 @@
+import config
 from monthly_stats import get as get_monthly_stats
 
 def get():
@@ -10,4 +11,6 @@ def get():
     top_10_monthlies.registerTempTable('top_10_monthlies')
     return top_10_monthlies
 
-print(get().collect())
+results = get()
+results.collect()
+results.write.csv(config.BUCKET_LOCATION + '/Results/monthly_top_10s.csv')
