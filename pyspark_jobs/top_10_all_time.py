@@ -9,4 +9,6 @@ def get():
 
     return top_10_monthly_all_time
 
-print(get().collect())
+results = get()
+results.collect()
+results.write.csv(config.BUCKET_LOCATION + '/Results/top_10_all_time.csv')

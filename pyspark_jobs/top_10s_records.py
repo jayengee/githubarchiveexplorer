@@ -21,4 +21,6 @@ def get():
     """)
     return top_10s_records
 
-print(get().collect())
+results = get()
+results.collect()
+results.write.csv(config.BUCKET_LOCATION + '/Results/top_10s_records.csv')
