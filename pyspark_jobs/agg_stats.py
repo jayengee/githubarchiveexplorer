@@ -58,7 +58,7 @@ def calc_stats():
             SUM(payload.pull_request.deletions) as n_deletions,
             SUM(payload.pull_request.additions) + SUM(payload.pull_request.deletions) as edit_size,
             COUNT(DISTINCT actor) as n_actors
-        FROM events
+        FROM repo_aggregates
         GROUP BY repo
     """)
     return stats
@@ -68,7 +68,7 @@ def get():
     Wrapper function to construct stat RDDs
     """
     events = parse_events()
-    events.registerTempTable('aggregates')
+    events.registerTempTable('repo_aggregates')
     stats = calc_stats()
 
     return stats

@@ -64,7 +64,7 @@ def calc_stats():
                 repo.name as repo_name,
                 COUNT(*) as n_events,
                 COUNT(DISTINCT actor) as n_actors
-            FROM events
+            FROM monthly_event_counts
             GROUP BY SUBSTRING(created_at, 1, 7), repo
         ) AS createStats
     """)
@@ -75,7 +75,7 @@ def get():
     Wrapper function to construct stat RDDs
     """
     events = parse_events()
-    events.registerTempTable('events')
+    events.registerTempTable('monthly_event_counts')
     stats = calc_stats()
 
     return stats

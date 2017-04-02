@@ -1,5 +1,5 @@
 import config
-from monthly_stats import get as get_monthly_stats
+from monthly_stats import get as get_monthly_stats, spark_session as spark
 
 def get_monthly_top_10s():
     """
