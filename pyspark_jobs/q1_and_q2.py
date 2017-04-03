@@ -21,7 +21,7 @@ def get_top_10s_records():
     top_10_ids = [int(i.repo_id) for i in top_10s.select(top_10s.repo_id).distinct().collect()]
     top_10_stats = stats.where(stats.repo_id.isin(top_10_ids))
     top_10_stats.registerTempTable('top_10_stats')
-    top_10s_records = spark.sql("""
+    top_10s_records = spark().sql("""
         SELECT
             repo_id,
             repo_name,
@@ -41,13 +41,13 @@ def get_top_10_all_time():
     return top_10_monthly_all_time
 
 monthly_top_10s = get_monthly_top_10s()
-monthly_top_10s.collect()
+monthly_top_10s.coalesce(1).collect()
 monthly_top_10s.write.csv(config.BUCKET_LOCATION + '/Results/q1.csv')
 
 top_10s_records = get_top_10s_records()
-top_10s_records.collect()
+top_10s_records.coalesce(1).collect()
 top_10s_records.write.csv(config.BUCKET_LOCATION + '/Results/q2a.csv')
 
 top_10_all_time = get_top_10_all_time()
-top_10_all_time.collect()
+top_10_all_time.coalesce(1).collect()
 top_10_all_time.write.csv(config.BUCKET_LOCATION + '/Results/q2b.csv')
