@@ -25,7 +25,7 @@ def get_top_10s_records():
         SELECT
             repo_id,
             repo_name,
-            MAX(n_events) AS peak_n_events,
+            MAX(n_events) AS peak_n_events
         FROM top_10_stats
         GROUP BY repo_id
     """)
