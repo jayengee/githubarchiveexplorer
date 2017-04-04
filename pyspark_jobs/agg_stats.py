@@ -18,7 +18,7 @@ def parse_events():
 
     def read_files():
         """
-        Reads all json.gz files from 2011 to 2016 and unions them. Filters by
+        Reads all json.gz files from 2015 to 2016 and unions them. Filters by
         repository language (since this was available at this point in the
         schema), then returns the resuting RDD
         """

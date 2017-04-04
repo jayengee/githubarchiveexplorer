@@ -86,10 +86,32 @@ Spark task status can be monitored via the cluster details tab under the Cloud D
 
 Results can be found within the Cloud Storage Bucket, under the `Results` sub-directory.
 
-##### Format
-Spark natively exports results in parts, taking advantage of different worker nodes to do so. This means numerous `.csv` files exported for each task.
+##### Coalescing parts
+Natively, Spark exports its results in parts, so as to take advantage of the different worker nodes and partitions of data stored.
 
-To get around additional work to read, parse, and re-merge these files, `coalesce(1)` is run on export, but as data sizes increase, this may not be feasible in the future.
+To combine data spread across these parts into a single file, we can leverage `gsutil` to cat and combine the files:
+```
+githubarchiveexplorer$ gsutil cat gs://githubarchivedata/Results/q1.csv/* > ./q1_results.csv
+githubarchiveexplorer$ gsutil cat gs://githubarchivedata/Results/q2a.csv/* > ./q2a_results.csv
+githubarchiveexplorer$ gsutil cat gs://githubarchivedata/Results/q2b.csv/* > ./q2b_results.csv
+githubarchiveexplorer$ gsutil cat gs://githubarchivedata/Results/q3a.csv/* > ./q3a_results.csv
+githubarchiveexplorer$ gsutil cp q1_results.csv gs://githubarchivedata/Results/q1.csv/
+Copying file://q1_results.csv [Content-Type=text/csv]...
+/ [1 files][  5.5 KiB/  5.5 KiB]
+Operation completed over 1 objects/5.5 KiB.
+githubarchiveexplorer$ gsutil cp q2a_results.csv gs://githubarchivedata/Results/q2a.csv/
+Copying file://q2a_results.csv [Content-Type=text/csv]...
+/ [1 files][  2.2 KiB/  2.2 KiB]
+Operation completed over 1 objects/2.2 KiB.
+githubarchiveexplorer$ gsutil cp q2b_results.csv gs://githubarchivedata/Results/q2b.csv/
+Copying file://q2b_results.csv [Content-Type=text/csv]...
+/ [1 files][  371.0 B/  371.0 B]
+Operation completed over 1 objects/371.0 B.
+githubarchiveexplorer$ gsutil cp q3a_results.csv gs://githubarchivedata/Results/q3a.csv/
+Copying file://q3a_results.csv [Content-Type=text/csv]...
+/ [1 files][  371.0 B/  371.0 B]
+Operation completed over 1 objects/371.0 B.
+```
 
 ## Schema
 ### GitHub events schema
